@@ -1,0 +1,69 @@
+server:
+  port: ${SERVER_PORT:8001}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/}
+spring:
+  application:
+    name: ${APPLICATION_NAME:spring-kafka-issue-continuous-log}
+  kafka:
+    username: ${KAFKA_USERNAME:changeit}
+    password: ${KAFKA_PASSWORD:changeit}
+    producer:
+      acks: all
+    consumer:
+      group-id: ${KAFKA_GROUP_ID:spring-kafka-issue-continuous-log}
+    client-id: ${KAFKA_CLIENT_ID:spring-kafka-issue-continuous-log}
+    bootstrap-servers: ${KAFKA_SERVERS:pkc-ldvr1.asia-southeast1.gcp.confluent.cloud:9092}
+    client:
+      dns:
+        lookup: ${CLIENT_DNS_LOOKUP:use_all_dns_ips}
+    session:
+      timeout:
+        ms: ${SESSION_TIMEOUT:45000}
+    properties:
+      sasl:
+        client:
+          callback:
+            handler:
+#              class: ${SASL_CLIENT_CALLBACK_HANDLER_CLASS:}
+        jaas:
+          config: ${SASL_JAAS_CONFIG:org.apache.kafka.common.security.plain.PlainLoginModule required username='${spring.kafka.username}' password='${spring.kafka.password}';}
+        mechanism: ${SASL_MECHANISM:PLAIN}
+        kerberos:
+          service:
+            name: kafka
+      security:
+        protocol: ${SECURITY_PROTOCOL:SASL_SSL}
+kafka:
+  auto:
+    commit:
+      interval:
+        ms: 100000
+  max:
+    poll:
+      records: 5
+  consumer:
+    group-id: ${spring.kafka.consumer.group-id}
+
+  bootstrap-servers: ${spring.kafka.bootstrap-servers}
+  client-id: ${spring.kafka.client-id}
+  security-protocol: ${spring.kafka.properties.security.protocol}
+  sasl-jaas-config: ${spring.kafka.properties.sasl.jaas.config}
+  sasl-mechanism: ${spring.kafka.properties.sasl.mechanism}
+  client-dns-lookup: ${spring.kafka.client.dns.lookup}
+  session-timeout: ${spring.kafka.session.timeout.ms}
+  acks: ${spring.kafka.producer.acks}
+  custom:
+    topic:
+      prefix: ${TOPIC_PREFIX:ifas}
+      consumers:
+        mail-received-event-topic: ${MAIL_RECEIVED_EVENT_TOPIC:${kafka.custom.topic.prefix}MailReceivedEventTopic}
+      producers:
+        mail-received-status-update-event-topic: ${MAIL_RECEIVED_STATUS_UPDATE_EVENT_TOPIC:${kafka.custom.topic.prefix}MailReceivedStatusUpdateEventTopic}
+
+
+
+logging:
+  level:
+    org.springframework: TRACE
+    liquibase: INFO
